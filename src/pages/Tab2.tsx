@@ -1,5 +1,5 @@
 
-import React, {  useState }  from 'react';
+import React, {  useEffect, useState }  from 'react';
 import { IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 //import OrbitDB from 'orbit-db';
@@ -8,13 +8,15 @@ import './Tab2.css';
 const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
   const [filehash, setFilehash] = useState('');
+  const [mylist, setMylist] = React.useState([]);
+
 //
 //  const [keepfile, setKeepfile] = useState('');
 //  const [password, setPassword] = useState('');
   const listnamevalue = '';
   const liststatvalue = '';
-  const mylist: any[] = [{sname: 'sssh',cidd:'djdd'}, {ddname:'shsh', ciddd:'shhs'}];
   const mylist1: any[] = [];
+//  const mylist : any[] = [];
 
 
   const ipfs = ipfsClient('/ip4/157.245.63.46/tcp/5001')
@@ -109,16 +111,19 @@ const Tab2: React.FC = () =>  {
         console.log(source)
 
   };
-/*
+
   useEffect(() => {
-        mylist1.map(a=> {
+  console.log('ineffect');
 
-      mylist.push(a);
+      mylist1.map(x => {
+  console.log('ineffect2');
+       setMylist(x);
+       return mylist;
+      });
 
-        });
 
-  });
-*/
+  }, [mylist, mylist1]);
+
   const mkdirfunc = async () => {
     var options = {parents: true};
     var source = await ipfs.files.mkdir('/user1/contents', options)
@@ -135,7 +140,7 @@ const Tab2: React.FC = () =>  {
       <IonContent>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Tab 1</IonTitle>
+            <IonTitle size="large">Tab 2</IonTitle>
           </IonToolbar>
         </IonHeader>
     <div>
@@ -162,19 +167,19 @@ const Tab2: React.FC = () =>  {
             </IonButton>
             <IonItem >
               <IonInput name="listname" type="text" placeholder="List" value={listnamevalue} spellCheck={false} autocapitalize="off" >
-            <IonButton onClick={listfiles}> List </IonButton>
               </IonInput>
+            <IonButton onClick={listfiles}> List </IonButton>
             </IonItem>
             <IonItem >
               <IonInput name="liststat" type="text" placeholder="Stat" value={liststatvalue} spellCheck={false} autocapitalize="off" >
-            <IonButton onClick={liststat}> Stat </IonButton>
               </IonInput>
+            <IonButton onClick={liststat}> Stat </IonButton>
             </IonItem>
        {
            mylist.map((a) =>      {
          return (  <IonItem>
                   {a['name']}
-           <IonButton href={a.cid} color="primary" slot="end">Read</IonButton>
+           <IonButton href={a['cid']} color="primary" slot="end">Read</IonButton>
             </IonItem>
           ) 
           })
