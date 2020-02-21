@@ -3,12 +3,32 @@ import React, {  useEffect, useState }  from 'react';
 import { IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 //import OrbitDB from 'orbit-db';
+import axios from 'axios';
+
 import './Tab2.css';
+
+const API_KEY = "e40d07f00b094602953cc3bf8537477e";
+const URL = `https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=${API_KEY}`;
+
+const fetchArticles = () => {
+
+  return axios({
+    url: URL,
+    method: 'get'
+  }).then(response => {
+
+    console.log(response);
+    return response.data;
+  })
+};
+
 
 const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
   const [filehash, setFilehash] = useState('');
   const [mylist, setMylist] = React.useState([]);
+  const [articles, setArticles] = useState([]);
+
 
 //
 //  const [keepfile, setKeepfile] = useState('');
@@ -17,6 +37,8 @@ const Tab2: React.FC = () =>  {
   const liststatvalue = '';
   const mylist1: any[] = [];
 //  const mylist : any[] = [];
+
+
 
 
   const ipfs = ipfsClient('/ip4/157.245.63.46/tcp/5001')
@@ -93,11 +115,19 @@ const Tab2: React.FC = () =>  {
   const listfiles = async () => {
     var options = {};
  var source = ipfs.files.ls('/user1/contents/', options)
+    var p = 0;
+    var testarray = [] as any;
     try {
       for await (const file of source) {
         console.log(file)
-        mylist1.push(file); 
+        //mylist1.push( {key:('hh'+ p++), value:file}); 
+        var obj = {
+         name: file.name,
+         url: file.name
+        };
+        testarray.push(obj); 
       }
+            setMylist(testarray);
     } catch (err) {
       console.error(err)
     }
@@ -111,16 +141,33 @@ const Tab2: React.FC = () =>  {
         console.log(source)
 
   };
+ 
+  useEffect(() => {
+
+    fetchArticles().then(data =>  {
+    console.log (JSON.stringify(data));
+    setArticles(data.articles) });
+
+  }, []);
+
 
   useEffect(() => {
   console.log('ineffect');
+    listfiles();
+    console.log (JSON.stringify(mylist1));
 
+    if(mylist1.length > 0) {
+      for( var x in mylist1) {
+       console.log(x);
+      }
+    };
+/*
       mylist1.map(x => {
   console.log('ineffect2');
        setMylist(x);
        return mylist;
       });
-
+*/
 
   }, [mylist, mylist1]);
 
@@ -176,14 +223,30 @@ const Tab2: React.FC = () =>  {
             <IonButton onClick={liststat}> Stat </IonButton>
             </IonItem>
        {
-           mylist.map((a) =>      {
-         return (  <IonItem>
+           mylist.map((a, index) =>      {
+         return (
+             <IonItem>
                   {a['name']}
-           <IonButton href={a['cid']} color="primary" slot="end">Read</IonButton>
+           <IonButton href={a['url']} color="primary" slot="end">Read</IonButton>
             </IonItem>
           ) 
           })
        }  
+
+
+               {
+            articles.map(a => {
+
+              return (
+                <IonItem>
+                  {a['title']}
+                  <IonButton href={a['url']} color="primary" slot="end">Read</IonButton>
+                </IonItem>
+              );
+            })
+          }
+
+
     </IonList>
 
     <p> Hello </p>
