@@ -1,84 +1,35 @@
+import { Plugins } from '@capacitor/core';
+
 
 import React, {  useEffect, useState }  from 'react';
 import { IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
-//import OrbitDB from 'orbit-db';
-import axios from 'axios';
+
 
 import './Tab2.css';
 
-const API_KEY = "e40d07f00b094602953cc3bf8537477e";
-const URL = `https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=${API_KEY}`;
-
-const fetchArticles = () => {
-
-  return axios({
-    url: URL,
-    method: 'get'
-  }).then(response => {
-
-    console.log(response);
-    return response.data;
-  })
-};
-
+const { Storage } = Plugins;
 
 const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
   const [filehash, setFilehash] = useState('');
   const [mylist, setMylist] = React.useState([]);
-  const [articles, setArticles] = useState([]);
 
 
-//
-//  const [keepfile, setKeepfile] = useState('');
-//  const [password, setPassword] = useState('');
   const listnamevalue = '';
   const liststatvalue = '';
   const mylist1: any[] = [];
-//  const mylist : any[] = [];
 
 
+  const serverurl = "http://157.245.63.46:8080";
+//  const serverurl = "http://157.245.63.46:1337";
 
 
   const ipfs = ipfsClient('/ip4/157.245.63.46/tcp/5001')
 
 
- // const [orbitdb, setOrbit] = useState();
-
  
 
-  const login = async () => {
-//  var  orbitdb1 = new OrbitDB(ipfs);
-//    setOrbit(orbitdb1)
-
-    try {
-    var x = await ipfs.version();
-    // var y = await orbitdb.keyvalue('my-database');
-    console.log(x);
-    // console.log(y);
-    } catch (err) {
-     console.log(err);
-    }
-  };
-/*
-  const saveToIpfs = async (files) => {
-    const source = ipfs.add(
-      [...files],
-      {
-        progress: (prog) => console.log(`received: ${prog}`)
-      }
-    )
-    try {
-      for await (const file of source) {
-        console.log(file)
-        setFilehash(file.path )
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  };
-*/
 
  const handleSubmit = (event) => {
     event.preventDefault()
@@ -89,33 +40,14 @@ const Tab2: React.FC = () =>  {
     event.preventDefault()
 
       saveToIpfsWithFilename(event.target.files)
-/*
-    if (keepfile) {
-      saveToIpfsWithFilename(event.target.files)
-    } else {
-
-      saveToIpfs(event.target.files)
-    }
-*/
 
   };
 
-  const saveToIpfsWithFilename = async (files) => {
-    const file = [...files][0]
-    const options = {
-    create: true
-    }
-
-    const source = ipfs.files.write('/user1/contents/'+file.name, file, options)
-        console.log(source)
-        setFilehash('/user1/contents/'+ file.name);
-  };
 
 
   const listfiles = async () => {
     var options = {};
  var source = ipfs.files.ls('/user1/contents/', options)
-    var p = 0;
     var testarray = [] as any;
     try {
       for await (const file of source) {
@@ -142,31 +74,15 @@ const Tab2: React.FC = () =>  {
 
   };
  
-  useEffect(() => {
-
-    fetchArticles().then(data =>  {
-    console.log (JSON.stringify(data));
-    setArticles(data.articles) });
-
-  }, []);
 
 
   useEffect(() => {
-  console.log('ineffect');
-    listfiles();
-    console.log (JSON.stringify(mylist1));
-
+/*
     if(mylist1.length > 0) {
       for( var x in mylist1) {
        console.log(x);
       }
     };
-/*
-      mylist1.map(x => {
-  console.log('ineffect2');
-       setMylist(x);
-       return mylist;
-      });
 */
 
   }, [mylist, mylist1]);
@@ -177,17 +93,73 @@ const Tab2: React.FC = () =>  {
         console.log(source)
   };
 
+
+
+const saveToIpfsWithFilename = async (files) => {
+    const file = [...files][0]
+    const options = {
+    create: true
+    }
+
+      await Storage.set({ key: 'user', value: 'user1' });
+    var source = await ipfs.files.write('/user1/contents/'+file.name, file, options)
+        console.log(source)
+        source = ipfs.files.ls('/user1/contents/'+file.name, options);
+         var file1 = await source.next();
+	  console.log( file1.value.cid.toString() )
+        
+        setFilehash('/user1/contents/'+ file.name);
+        var x = {
+	  hash: file1.value.cid.toString(),
+	  name: file.name,
+	  cid: file1.value.cid.toString(),
+	  path: '/user1/contents/'
+        };
+        saveinserver(x);
+  };
+
+  const saveinserver = async ( x ) => {
+
+   var url = serverurl + "/api/ipfsusage/savefile";
+
+   var cred = {
+        userid: 'user1',
+        name: x.name,
+        path: x.path,
+        hash: x.hash, 
+        cid: x.cid, 
+   };
+
+  fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "" + localStorage.getItem("token"),
+            },
+            body: JSON.stringify(cred)
+     })
+      .then(res => res.json())
+      .then(
+        (res) => {
+         console.log(res);
+        },
+        (err) => {
+          console.log(err)
+        }
+      )
+  }
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Tab 2</IonTitle>
+          <IonTitle> File manager </IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Tab 2</IonTitle>
+            <IonTitle size="large">File manager </IonTitle>
           </IonToolbar>
         </IonHeader>
     <div>
@@ -210,8 +182,6 @@ const Tab2: React.FC = () =>  {
                 required>
               </IonInput>
             </IonItem>
-            <IonButton onClick={login}> Test button
-            </IonButton>
             <IonItem >
               <IonInput name="listname" type="text" placeholder="List" value={listnamevalue} spellCheck={false} autocapitalize="off" >
               </IonInput>
@@ -225,7 +195,7 @@ const Tab2: React.FC = () =>  {
        {
            mylist.map((a, index) =>      {
          return (
-             <IonItem>
+             <IonItem key={'somerandomxxx'+index}>
                   {a['name']}
            <IonButton href={a['url']} color="primary" slot="end">Read</IonButton>
             </IonItem>
@@ -234,22 +204,10 @@ const Tab2: React.FC = () =>  {
        }  
 
 
-               {
-            articles.map(a => {
-
-              return (
-                <IonItem>
-                  {a['title']}
-                  <IonButton href={a['url']} color="primary" slot="end">Read</IonButton>
-                </IonItem>
-              );
-            })
-          }
 
 
     </IonList>
 
-    <p> Hello </p>
    
 
       </IonContent>
