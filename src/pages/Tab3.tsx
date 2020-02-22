@@ -1,20 +1,23 @@
 
-import { Plugins } from '@capacitor/core';
+//import { Plugins } from '@capacitor/core';
 import React, { useState }  from 'react';
-import { IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 
 
 import './Tab3.css';
 
-const { Storage } = Plugins;
+//const { Storage } = Plugins;
 const Tab3: React.FC = () =>  {
   const [username, setUsername] = useState('');
-  const [filehash, setFilehash] = useState('');
+  //const [filehash, setFilehash] = useState('');
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [error, setError] = useState('');
+
   const listnamevalue = '';
   const liststatvalue = '';
-  const serverurl = "http://157.245.63.46:8080";
-  // const serverurl = "http://157.245.63.46:1337";
+  // const serverurl = "http://157.245.63.46:8080";
+   const serverurl = "http://157.245.63.46:1337";
 
   const ipfs = ipfsClient('/ip4/157.245.63.46/tcp/5001')
 
@@ -43,6 +46,8 @@ const Tab3: React.FC = () =>  {
          localStorage.setItem('token', res.token);
         },      
         (err) => {
+         setError(err);
+         setShowErrorAlert(true);
           console.log(err)
         }
       )
@@ -65,6 +70,8 @@ const Tab3: React.FC = () =>  {
          console.log(res);
         },      
         (err) => {
+         setError(err);
+         setShowErrorAlert(true);
           console.log(err)
         }
       )
@@ -90,6 +97,8 @@ const Tab3: React.FC = () =>  {
          localStorage.setItem('token', res.token);
         },      
         (err) => {
+         setError(err);
+         setShowErrorAlert(true);
           console.log(err)
         }
       )
@@ -114,6 +123,8 @@ const Tab3: React.FC = () =>  {
          console.log(res);
         },      
         (err) => {
+         setError(err);
+         setShowErrorAlert(true);
           console.log(err)
         }
       )
@@ -138,12 +149,14 @@ const Tab3: React.FC = () =>  {
          console.log(res);
         },      
         (err) => {
+         setError(err);
+         setShowErrorAlert(true);
           console.log(err)
         }
       )
   } 
 
-
+/*
   const saveinserver = async ( x ) => {
 
    var url = serverurl + "/api/ipfsusage/savefile";
@@ -170,12 +183,14 @@ const Tab3: React.FC = () =>  {
          console.log(res);
         },
         (err) => {
+         setError(err);
+         setShowErrorAlert(true);
           console.log(err)
         }
       )
   }
 
-
+*/
   const getconfig = async () => {
   var url = serverurl + "/api/ipfsnode/getipfsconfig";
    var cred = {
@@ -195,12 +210,14 @@ const Tab3: React.FC = () =>  {
          console.log(res);
         },      
         (err) => {
+         setError(err);
+         setShowErrorAlert(true);
           console.log(err)
         }
       )
   } 
 
-
+/*
  const handleSubmit = (event) => {
     event.preventDefault()
   };
@@ -212,7 +229,9 @@ const Tab3: React.FC = () =>  {
       saveToIpfsWithFilename(event.target.files)
 
   };
+*/
 
+/*
 const saveToIpfsWithFilename = async (files) => {
     const file = [...files][0]
     const options = {
@@ -236,6 +255,7 @@ const saveToIpfsWithFilename = async (files) => {
         saveinserver(x);
   };
 
+*/
 
   const listfiles = async () => {
     var options = {};
@@ -245,6 +265,8 @@ const saveToIpfsWithFilename = async (files) => {
         console.log(file)
       }
     } catch (err) {
+         setError(err);
+         setShowErrorAlert(true);
       console.error(err)
     }
 
@@ -308,7 +330,14 @@ const saveToIpfsWithFilename = async (files) => {
 
 
     </IonList>
-
+    <IonAlert
+          isOpen={showErrorAlert}
+          onDidDismiss={() => setShowErrorAlert(false)}
+          header={'Alert'}
+          subHeader={'Error'}
+          message={error}
+          buttons={['OK']}
+        />
 
    
 

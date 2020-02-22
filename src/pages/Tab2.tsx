@@ -2,7 +2,7 @@ import { Plugins } from '@capacitor/core';
 
 
 import React, {  useEffect, useState }  from 'react';
-import { IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 
 
@@ -14,6 +14,9 @@ const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
   const [filehash, setFilehash] = useState('');
   const [mylist, setMylist] = React.useState([]);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [error, setError] = useState('');
+
 
 
   const listnamevalue = '';
@@ -21,8 +24,8 @@ const Tab2: React.FC = () =>  {
   const mylist1: any[] = [];
 
 
-  const serverurl = "http://157.245.63.46:8080";
-//  const serverurl = "http://157.245.63.46:1337";
+//  const serverurl = "http://157.245.63.46:8080";
+  const serverurl = "http://157.245.63.46:1337";
 
 
   const ipfs = ipfsClient('/ip4/157.245.63.46/tcp/5001')
@@ -55,12 +58,16 @@ const Tab2: React.FC = () =>  {
         //mylist1.push( {key:('hh'+ p++), value:file}); 
         var obj = {
          name: file.name,
-         url: file.name
+         cid: file.cid.toString(),
+         url: 'https://ipfs.io/ipfs/'+file.cid.toString()
         };
         testarray.push(obj); 
       }
             setMylist(testarray);
     } catch (err) {
+      setError(err);
+      setShowErrorAlert(true);
+
       console.error(err)
     }
 
@@ -144,6 +151,8 @@ const saveToIpfsWithFilename = async (files) => {
          console.log(res);
         },
         (err) => {
+      setError(err);
+      setShowErrorAlert(true);
           console.log(err)
         }
       )
@@ -198,6 +207,7 @@ const saveToIpfsWithFilename = async (files) => {
              <IonItem key={'somerandomxxx'+index}>
                   {a['name']}
            <IonButton href={a['url']} color="primary" slot="end">Read</IonButton>
+
             </IonItem>
           ) 
           })
@@ -207,6 +217,15 @@ const saveToIpfsWithFilename = async (files) => {
 
 
     </IonList>
+
+    <IonAlert
+          isOpen={showErrorAlert}
+          onDidDismiss={() => setShowErrorAlert(false)}
+          header={'Alert'}
+          subHeader={'Error'}
+          message={error}
+          buttons={['OK']}
+        />
 
    
 
