@@ -1,7 +1,7 @@
 
 //import { Plugins } from '@capacitor/core';
 import React, { useState }  from 'react';
-import { IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonRow, IonCol, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 
 
@@ -9,15 +9,20 @@ import './Tab3.css';
 
 //const { Storage } = Plugins;
 const Tab3: React.FC = () =>  {
+  const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginmessage, setLoginmessage] = useState('Place for login message');
+  const [nodemessage, setNodemessage] = useState('Place for node message');
+  const [statvalue, setStatvalue] = useState(0);
+  const [listvalue, setListvalue] = useState(0);
+
   //const [filehash, setFilehash] = useState('');
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [error, setError] = useState('');
 
-  const listnamevalue = '';
-  const liststatvalue = '';
-  // const serverurl = "http://157.245.63.46:8080";
-   const serverurl = "http://157.245.63.46:1337";
+   const serverurl = "http://157.245.63.46:8080";
+//   const serverurl = "http://157.245.63.46:1337";
 
   const ipfs = ipfsClient('/ip4/157.245.63.46/tcp/5001')
 
@@ -28,9 +33,10 @@ const Tab3: React.FC = () =>  {
   const mylogin = async () => {
   var url = serverurl + "/api/auth/login";
   var cred = {
-	email: 'a@b.com',
-	role: 'creator',
-        password: 'welcome123'	
+	email: email,
+	username: username,
+	role: 'user',
+        password: password
    };
   fetch(url, {
             method: 'POST',
@@ -44,6 +50,7 @@ const Tab3: React.FC = () =>  {
         (res) => {
          console.log(res);
          localStorage.setItem('token', res.token);
+         setLoginmessage(JSON.stringify(res));
         },      
         (err) => {
          setError(err);
@@ -53,14 +60,14 @@ const Tab3: React.FC = () =>  {
       )
   } 
 
-  const mytest = async () => {
+  const logintest = async () => {
   var url = serverurl + "/api/auth/protected";
 
   fetch(url,
    {
       method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+//        "Content-Type": "application/json",
         "Authorization": "" + localStorage.getItem("token"),
       }
     })
@@ -68,6 +75,7 @@ const Tab3: React.FC = () =>  {
       .then(
         (res) => {
          console.log(res);
+         setLoginmessage(JSON.stringify(res));
         },      
         (err) => {
          setError(err);
@@ -79,9 +87,10 @@ const Tab3: React.FC = () =>  {
   const myregister = async () => {
   var url = serverurl + "/api/auth/register";
    var cred = {
-        email: 'a@b.com',
-	role: 'creator',
-        password: 'welcome123'
+        email: email,
+	username: username,
+	role: 'user',
+        password: password
    };
   fetch(url, {
             method: 'POST',
@@ -95,6 +104,7 @@ const Tab3: React.FC = () =>  {
         (res) => {
          console.log(res);
          localStorage.setItem('token', res.token);
+         setLoginmessage(JSON.stringify(res));
         },      
         (err) => {
          setError(err);
@@ -107,7 +117,7 @@ const Tab3: React.FC = () =>  {
   const stopnode = async () => {
   var url = serverurl + "/api/ipfsnode/stopnode";
    var cred = {
-	userid: 'user1',
+	userid: username,
    };
   fetch(url, {
             method: 'POST',
@@ -121,6 +131,8 @@ const Tab3: React.FC = () =>  {
       .then(
         (res) => {
          console.log(res);
+         setNodemessage(JSON.stringify(res));
+           
         },      
         (err) => {
          setError(err);
@@ -133,7 +145,7 @@ const Tab3: React.FC = () =>  {
   const startnode = async () => {
   var url = serverurl + "/api/ipfsnode/startnode";
    var cred = {
-	userid: 'user1',
+	userid: username
    };
   fetch(url, {
             method: 'POST',
@@ -147,6 +159,7 @@ const Tab3: React.FC = () =>  {
       .then(
         (res) => {
          console.log(res);
+         setNodemessage(JSON.stringify(res));
         },      
         (err) => {
          setError(err);
@@ -194,7 +207,7 @@ const Tab3: React.FC = () =>  {
   const getconfig = async () => {
   var url = serverurl + "/api/ipfsnode/getipfsconfig";
    var cred = {
-	userid: 'user1',
+	userid: username
    };
   fetch(url, {
             method: 'POST',
@@ -260,15 +273,18 @@ const saveToIpfsWithFilename = async (files) => {
   const listfiles = async () => {
     var options = {};
  var source = ipfs.files.ls('/user1/contents/', options)
+     var arraylength = 0;
     try {
       for await (const file of source) {
         console.log(file)
+        arraylength ++;
       }
     } catch (err) {
          setError(err);
          setShowErrorAlert(true);
       console.error(err)
     }
+        setListvalue(arraylength);
 
   };
 
@@ -277,10 +293,18 @@ const saveToIpfsWithFilename = async (files) => {
     var options = {};
     var source = await ipfs.files.stat('/user1/contents/', options)
         console.log(source)
+        setStatvalue(source.cumulativeSize);
 
   };
 
-
+ const isJson = (str) => {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+ };
 
   
 
@@ -300,32 +324,62 @@ const saveToIpfsWithFilename = async (files) => {
         </IonHeader>
 
     <IonList>
+          <IonItem>
+              <IonLabel position="stacked" color="primary">Username</IonLabel>
+              <IonInput name="username" type="text" value={username} spellCheck={false} autocapitalize="off" onIonChange={e => setUsername(e.detail.value!)}
+                required>
+              </IonInput>
+            </IonItem>
+
+
+        <IonItem>
+              <IonLabel position="stacked" color="primary">Email</IonLabel>
+              <IonInput name="email" type="text" value={email} spellCheck={false} autocapitalize="off" onIonChange={e => setEmail(e.detail.value!)}
+                required>
+              </IonInput>
+            </IonItem>
+       <IonItem>
+              <IonLabel position="stacked" color="primary">Password</IonLabel>
+              <IonInput name="password" type="password" value={password} onIonChange={e => setPassword(e.detail.value!)}>
+              </IonInput>
+            </IonItem>
+   <IonRow>
+            <IonCol>
+              <IonButton expand="block" onClick={mylogin}> Login </IonButton>
+            </IonCol>
+            <IonCol>
+              <IonButton expand="block" onClick={myregister}> Register </IonButton>
+            </IonCol>
+          </IonRow>
+
+
+
             <IonItem>
-            <IonButton onClick={mylogin}> mylogin </IonButton>
-            <IonButton onClick={myregister}> register </IonButton>
-            <IonButton onClick={mytest}> test </IonButton>
+               <IonLabel>
+               {loginmessage}
+               </IonLabel>
+            </IonItem>
+            <IonItem>
+            <IonButton onClick={logintest}> Test Login </IonButton>
             </IonItem>
             <IonItem>
             <IonButton onClick={startnode}> startnode </IonButton>
             <IonButton onClick={stopnode}> stopnode </IonButton>
             <IonButton onClick={getconfig}> getconfig </IonButton>
             </IonItem>
+            <IonItem>
+               <IonLabel>
+               {nodemessage}
+               </IonLabel>
+            </IonItem>
 
             <IonItem >
-              <IonLabel position="stacked" color="primary">Username</IonLabel>
-              <IonInput name="username" type="text" value={username} spellCheck={false} autocapitalize="off" onIonChange={e => setUsername(e.detail.value!)}
-                required>
-              </IonInput>
+            <IonButton onClick={listfiles}> Number of files </IonButton>
+            <IonLabel slot="end" >  {listvalue} </IonLabel>
             </IonItem>
             <IonItem >
-              <IonInput name="listname" type="text" placeholder="List" value={listnamevalue} spellCheck={false} autocapitalize="off" >
-            <IonButton onClick={listfiles}> List </IonButton>
-              </IonInput>
-            </IonItem>
-            <IonItem >
-              <IonInput name="liststat" type="text" placeholder="Stat" value={liststatvalue} spellCheck={false} autocapitalize="off" >
-            <IonButton onClick={liststat}> Stat </IonButton>
-              </IonInput>
+            <IonButton onClick={liststat}> Size usage (bytes) </IonButton>
+            <IonLabel slot="end" >  {statvalue} </IonLabel>
             </IonItem>
 
 
