@@ -1,7 +1,7 @@
 
 //import { Plugins } from '@capacitor/core';
 import React, { useState }  from 'react';
-import { IonRow, IonCol, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonListHeader, IonRadioGroup,IonRadio, IonRow, IonCol, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 
 
@@ -11,6 +11,7 @@ import './Tab3.css';
 const Tab3: React.FC = () =>  {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const [nodetype, setNodetype] = useState('privatesharednode');
   const [password, setPassword] = useState('');
   const [loginmessage, setLoginmessage] = useState('Place for login message');
   const [nodemessage, setNodemessage] = useState('Place for node message');
@@ -221,6 +222,7 @@ const Tab3: React.FC = () =>  {
       .then(
         (res) => {
          console.log(res);
+         localStorage.setItem("ipfsconfig", JSON.stringify(res) );
         },      
         (err) => {
          setError(err);
@@ -297,6 +299,7 @@ const saveToIpfsWithFilename = async (files) => {
 
   };
 
+/*
  const isJson = (str) => {
     try {
         JSON.parse(str);
@@ -305,7 +308,7 @@ const saveToIpfsWithFilename = async (files) => {
     }
     return true;
  };
-
+*/
   
 
 
@@ -382,6 +385,31 @@ const saveToIpfsWithFilename = async (files) => {
             <IonLabel slot="end" >  {statvalue} </IonLabel>
             </IonItem>
 
+           <IonRadioGroup value={nodetype}   onIonChange={e => setNodetype(e.detail.value!)} >
+        <IonListHeader>
+          <IonLabel>Usage type</IonLabel>
+        </IonListHeader>
+
+        <IonItem>
+          <IonLabel>Private node </IonLabel>
+          <IonRadio slot="start" value="privatenode" />
+        </IonItem>
+
+        <IonItem>
+          <IonLabel>Private shared node </IonLabel>
+          <IonRadio slot="start" value="privatesharednode" />
+        </IonItem>
+
+        <IonItem>
+          <IonLabel>Public shared node</IonLabel>
+          <IonRadio slot="start" value="publicsharednode" />
+        </IonItem>
+
+        <IonItem>
+          <IonLabel>Cluster node</IonLabel>
+          <IonRadio slot="start" value="clusternode" />
+        </IonItem>
+       </IonRadioGroup>
 
     </IonList>
     <IonAlert
