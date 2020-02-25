@@ -13,6 +13,7 @@ const { Storage } = Plugins;
 const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
   const [filehash, setFilehash] = useState('');
+  const [directory, setDirectory] = useState('/user1/contents/');
   const [mylist, setMylist] = React.useState([]);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [error, setError] = useState('');
@@ -47,10 +48,15 @@ const Tab2: React.FC = () =>  {
   };
 
 
+  const mynewdirectory = async () => {
+    var newdir = '/user1';
+    setDirectory(newdir); 
+    listfiles();
+  };
 
   const listfiles = async () => {
     var options = {};
- var source = ipfs.files.ls('/user1/contents/', options)
+ var source = ipfs.files.ls(directory, options)
     var testarray = [] as any;
     try {
       for await (const file of source) {
@@ -201,12 +207,16 @@ const saveToIpfsWithFilename = async (files) => {
               </IonInput>
             <IonButton onClick={liststat}> Stat </IonButton>
             </IonItem>
+            <IonItem  onClick={mynewdirectory} >
+          <IonLabel  > user1 </IonLabel>
+            </IonItem>
        {
            mylist.map((a, index) =>      {
          return (
              <IonItem key={'somerandomxxx'+index}>
                   {a['name']}
            <IonButton href={a['url']} color="primary" slot="end">Read</IonButton>
+           <IonButton href={a['url']} color="primary" slot="end">Delete</IonButton>
 
             </IonItem>
           ) 
