@@ -2,7 +2,7 @@ import { Plugins } from '@capacitor/core';
 
 
 import React, {  useEffect, useState }  from 'react';
-import { IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 
 
@@ -48,15 +48,15 @@ const Tab2: React.FC = () =>  {
   };
 
 
-  const mynewdirectory = async () => {
-    var newdir = '/user1';
-    setDirectory(newdir); 
-    listfiles();
+  const mynewdirectory = async (newdir) => {
+    //var newdir = '/user1';
+//    setDirectory(newdir); 
+    listfiles(newdir);
   };
 
-  const listfiles = async () => {
+  const listfiles = async (dir) => {
     var options = {};
- var source = ipfs.files.ls(directory, options)
+ var source = ipfs.files.ls(dir, options)
     var testarray = [] as any;
     try {
       for await (const file of source) {
@@ -177,17 +177,8 @@ const saveToIpfsWithFilename = async (files) => {
             <IonTitle size="large">File manager </IonTitle>
           </IonToolbar>
         </IonHeader>
-    <div>
-        <form id='captureMedia' onSubmit={handleSubmit}>
-          <input type='file' onChange={captureFile} /><br/>
-        </form>
-        </div>
-  <div>
-          <a target='_blank' rel="noopener noreferrer"
-            href={'https://ipfs.io/ipfs/' + filehash}>
-            {filehash}
-          </a>
-        </div>
+            <IonItem >
+            </IonItem >
 
             <IonButton onClick={mkdirfunc}> Mkdir </IonButton>
     <IonList>
@@ -200,16 +191,45 @@ const saveToIpfsWithFilename = async (files) => {
             <IonItem >
               <IonInput name="listname" type="text" placeholder="List" value={listnamevalue} spellCheck={false} autocapitalize="off" >
               </IonInput>
-            <IonButton onClick={listfiles}> List </IonButton>
+            <IonButton onClick={()=>listfiles(directory)}> List </IonButton>
             </IonItem>
             <IonItem >
               <IonInput name="liststat" type="text" placeholder="Stat" value={liststatvalue} spellCheck={false} autocapitalize="off" >
               </IonInput>
             <IonButton onClick={liststat}> Stat </IonButton>
             </IonItem>
-            <IonItem  onClick={mynewdirectory} >
-          <IonLabel  > user1 </IonLabel>
+            <IonItem   >
+          <IonLabel position="stacked" color="primary"   >  Click the directory below to browse  </IonLabel>
+            </IonItem   >
+            <IonItem   >
+          <IonText   onClick={()=>mynewdirectory('/user1')} >  /user1 </IonText>
+          <IonText   onClick={()=>mynewdirectory('/user1/contents')} >  /contents </IonText>
             </IonItem>
+            <IonItem >
+              <IonInput name="listname" type="text" placeholder="Directory to make" value={listnamevalue} spellCheck={false} autocapitalize="off" >
+              </IonInput>
+            <IonButton onClick={mkdirfunc}> mkdir </IonButton>
+            </IonItem>
+    <IonItem >
+          <IonLabel position="stacked" color="primary"   >  Choose file to upload </IonLabel>
+    <div>
+        <form id='captureMedia' onSubmit={handleSubmit}>
+          <input type='file' onChange={captureFile} /><br/>
+        </form>
+        </div>
+  <div>
+          <a target='_blank' rel="noopener noreferrer"
+            href={'https://ipfs.io/ipfs/' + filehash}>
+            {filehash}
+          </a>
+        </div>
+            </IonItem >
+            <IonItem >
+            <IonButton onClick={mkdirfunc} size="small" > Upload </IonButton>
+            <IonButton onClick={listfiles} size="small" > List </IonButton>
+            <IonButton onClick={listfiles} size="small" > Pin </IonButton>
+            </IonItem >
+
        {
            mylist.map((a, index) =>      {
          return (
