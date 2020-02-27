@@ -256,11 +256,25 @@ const saveToIpfsWithFilename = async (files) => {
            mylist.map((a, index) =>      {
          return (
             <IonItem key={'somerandohmxxx'+index}>
-                  {a['name']} 
-           <IonButton size="small" target="_blank" href={a['publicurl']} color="primary" slot="end">Publ View</IonButton>
-           <IonButton size="small" target="_blank" href={a['privateurl']} color="primary" slot="end">Priv View</IonButton>
+           <IonLabel class="ion-text-wrap">
+      <IonText color="primary">
+        <h3> {a['name']} </h3>
+      </IonText>
+      <IonText color="secondary">
+      <p>  
+           <a target="_blank" href={a['publicurl']} >Public view</a>
+      </p>
+      <p>
+           <a target="_blank" href={a['privateurl']} >Private view</a>
+      </p>
+      <p>
            <IonButton  size="small" color="primary" slot="end">Delete</IonButton>
-           <IonButton  size="small" download="somename" color="primary" slot="end">Download</IonButton>
+           <a  target="_blank"  href={a['privateurl']} download> Download </a>
+      </p>
+      </IonText>
+    </IonLabel>
+
+
 
             </IonItem>
           ) 
