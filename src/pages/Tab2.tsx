@@ -13,25 +13,29 @@ const { Storage } = Plugins;
 const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
   const [filehash, setFilehash] = useState('');
-  const [directory, setDirectory] = useState('/user1/contents/');
+  // const [directory, setDirectory] = useState('/user1/contents/');
   const [mylist, setMylist] = React.useState([]);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [error, setError] = useState('');
 
 
 
+  const directory = '/user1/contents/';
   const listnamevalue = '';
   const liststatvalue = '';
   const mylist1: any[] = [];
 
 
-//  const serverurl = "http://157.245.63.46:8080";
-  const serverurl = "http://157.245.63.46:1337";
+  const serverurl = "http://157.245.63.46:8080";
+//  const serverurl = "http://157.245.63.46:1337";
 
 
   const ipfs = ipfsClient('/ip4/157.245.63.46/tcp/5001')
 
 
+  var ipfsconfig : any = {
+	nodetype : 'publicnode'
+  };
  
 
 
@@ -56,16 +60,25 @@ const Tab2: React.FC = () =>  {
 
   const listfiles = async (dir) => {
     var options = {};
+
+    ipfsconfig = localStorage.getItem("ipfsconfig");
  var source = ipfs.files.ls(dir, options)
     var testarray = [] as any;
     try {
       for await (const file of source) {
         console.log(file)
         //mylist1.push( {key:('hh'+ p++), value:file}); 
+        var tmpurl ;
+        if(ipfsconfig.nodetype === 'publicnode') {
+           tmpurl = 'https://ipfs.io/ipfs/'+file.cid.toString()
+        } else {
+           tmpurl = ipfsconfig.localgateway + '/ipfs/'+file.cid.toString()
+        }
+
         var obj = {
          name: file.name,
          cid: file.cid.toString(),
-         url: 'https://ipfs.io/ipfs/'+file.cid.toString()
+         url: tmpurl,
         };
         testarray.push(obj); 
       }
@@ -183,6 +196,9 @@ const saveToIpfsWithFilename = async (files) => {
             <IonButton onClick={mkdirfunc}> Mkdir </IonButton>
     <IonList>
             <IonItem >
+              <IonLabel color="primary">Nodetype = {ipfsconfig.nodetype} </IonLabel>
+            </IonItem >
+            <IonItem >
               <IonLabel position="stacked" color="primary">Username</IonLabel>
               <IonInput name="username" type="text" value={username} spellCheck={false} autocapitalize="off" onIonChange={e => setUsername(e.detail.value!)}
                 required>
@@ -235,8 +251,9 @@ const saveToIpfsWithFilename = async (files) => {
          return (
              <IonItem key={'somerandomxxx'+index}>
                   {a['name']}
-           <IonButton href={a['url']} color="primary" slot="end">Read</IonButton>
+           <IonButton href={a['url']} color="primary" slot="end">View</IonButton>
            <IonButton href={a['url']} color="primary" slot="end">Delete</IonButton>
+           <IonButton href={a['url']} download="somename" color="primary" slot="end">Download</IonButton>
 
             </IonItem>
           ) 
