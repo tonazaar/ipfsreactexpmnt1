@@ -13,6 +13,7 @@ const { Storage } = Plugins;
 const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
   const [filehash, setFilehash] = useState('');
+  const [filename, setFilename] = useState('');
   // const [directory, setDirectory] = useState('/user1/contents/');
   const [mylist, setMylist] = React.useState([]);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -61,24 +62,28 @@ const Tab2: React.FC = () =>  {
   const listfiles = async (dir) => {
     var options = {};
 
-    ipfsconfig = localStorage.getItem("ipfsconfig");
+    var tmpss = localStorage.getItem("ipfsconfig");
+    if(tmpss != null) {
+    ipfsconfig = JSON.parse(tmpss);
+    console.log(ipfsconfig);
+    }
+
+
  var source = ipfs.files.ls(dir, options)
     var testarray = [] as any;
     try {
       for await (const file of source) {
         console.log(file)
         //mylist1.push( {key:('hh'+ p++), value:file}); 
-        var tmpurl ;
-        if(ipfsconfig.nodetype === 'publicnode') {
-           tmpurl = 'https://ipfs.io/ipfs/'+file.cid.toString()
-        } else {
-           tmpurl = ipfsconfig.localgateway + '/ipfs/'+file.cid.toString()
-        }
+
+        var publicurl = 'https://ipfs.io/ipfs/'+file.cid.toString()
+        var privateurl = ipfsconfig.localgateway + '/ipfs/'+file.cid.toString()
 
         var obj = {
          name: file.name,
          cid: file.cid.toString(),
-         url: tmpurl,
+         publicurl: publicurl,
+         privateurl: privateurl,
         };
         testarray.push(obj); 
       }
@@ -134,7 +139,8 @@ const saveToIpfsWithFilename = async (files) => {
          var file1 = await source.next();
 	  console.log( file1.value.cid.toString() )
         
-        setFilehash('/user1/contents/'+ file.name);
+        setFilename('/user1/contents/'+ file.name);
+        setFilehash(file1.value.cid.toString());
         var x = {
 	  hash: file1.value.cid.toString(),
 	  name: file.name,
@@ -236,7 +242,7 @@ const saveToIpfsWithFilename = async (files) => {
   <div>
           <a target='_blank' rel="noopener noreferrer"
             href={'https://ipfs.io/ipfs/' + filehash}>
-            {filehash}
+            {filename}
           </a>
         </div>
             </IonItem >
@@ -249,11 +255,12 @@ const saveToIpfsWithFilename = async (files) => {
        {
            mylist.map((a, index) =>      {
          return (
-             <IonItem key={'somerandomxxx'+index}>
-                  {a['name']}
-           <IonButton href={a['url']} color="primary" slot="end">View</IonButton>
-           <IonButton href={a['url']} color="primary" slot="end">Delete</IonButton>
-           <IonButton href={a['url']} download="somename" color="primary" slot="end">Download</IonButton>
+            <IonItem key={'somerandohmxxx'+index}>
+                  {a['name']} 
+           <IonButton size="small" target="_blank" href={a['publicurl']} color="primary" slot="end">Publ View</IonButton>
+           <IonButton size="small" target="_blank" href={a['privateurl']} color="primary" slot="end">Priv View</IonButton>
+           <IonButton  size="small" color="primary" slot="end">Delete</IonButton>
+           <IonButton  size="small" download="somename" color="primary" slot="end">Download</IonButton>
 
             </IonItem>
           ) 

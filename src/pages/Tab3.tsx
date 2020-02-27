@@ -208,7 +208,8 @@ const Tab3: React.FC = () =>  {
   const getconfig = async () => {
   var url = serverurl + "/api/ipfsnode/getipfsconfig";
    var cred = {
-	userid: username
+	userid: username,
+	nodetype: nodetype
    };
   fetch(url, {
             method: 'POST',
