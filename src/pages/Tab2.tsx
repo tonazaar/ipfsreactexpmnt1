@@ -12,18 +12,17 @@ const { Storage } = Plugins;
 
 const Tab2: React.FC = () =>  {
   const [username, setUsername] = useState('');
+  const [dirtomake, setDirtomake] = useState('');
   const [filehash, setFilehash] = useState('');
   const [filename, setFilename] = useState('');
-  // const [directory, setDirectory] = useState('/user1/contents/');
+  const [directory, setDirectory] = useState('/user1/contents/');
+  const [statvalue, setStatvalue] = useState(0);
   const [mylist, setMylist] = React.useState([]);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [error, setError] = useState('');
 
 
 
-  const directory = '/user1/contents/';
-  const listnamevalue = '';
-  const liststatvalue = '';
   const mylist1: any[] = [];
 
 
@@ -35,7 +34,8 @@ const Tab2: React.FC = () =>  {
 
 
   var ipfsconfig : any = {
-	nodetype : 'publicnode'
+	nodetype : 'publicnode',
+	userid : 'user1'
   };
  
 
@@ -55,8 +55,53 @@ const Tab2: React.FC = () =>  {
 
   const mynewdirectory = async (newdir) => {
     //var newdir = '/user1';
-//    setDirectory(newdir); 
+    setDirectory(newdir); 
     listfiles(newdir);
+  };
+
+  const pinfiles = async (dir) => {
+    var options = {};
+
+    var tmpss = localStorage.getItem("ipfsconfig");
+    if(tmpss != null) {
+    ipfsconfig = JSON.parse(tmpss);
+    console.log(ipfsconfig);
+    }
+
+   var the_arr = dir.split('/');
+    var lastdir = the_arr.pop();
+    if(lastdir == '')
+    lastdir = the_arr.pop();
+    var newdir =  the_arr.join('/') ;
+
+   console.log("newdir =" + newdir);
+   console.log("lastdir =" + lastdir);
+
+   var source = ipfs.files.ls(newdir , options)
+    try {
+      for await (const file of source) {
+        console.log(file)
+       /* var segments = dir.replace(/\/+$/, '').split('/');
+       var lastDir = (segments.length > 0) ? segments[segments.length - 1] : "";
+        console.log(lastDir);
+*/
+
+        if(file.type === 1 && file.name === lastdir) {
+
+          var pinoptions = {
+		recursive: true
+          };
+          var pinoutput = await ipfs.pin.add(file.cid.toString(), pinoptions);
+          console.log("pinning status =" + JSON.stringify(pinoutput));
+        }
+      }
+    } catch (err) {
+      setError(err);
+      setShowErrorAlert(true);
+
+      console.error(err)
+    }
+
   };
 
   const listfiles = async (dir) => {
@@ -98,9 +143,11 @@ const Tab2: React.FC = () =>  {
   };
 
 
-  const liststat = async () => {
+  const liststat = async (dir) => {
     var options = {};
-    var source = await ipfs.files.stat('/user1/contents/', options)
+    var source = await ipfs.files.stat(dir , options)
+     setStatvalue(source.cumulativeSize);
+
         console.log(source)
 
   };
@@ -118,12 +165,20 @@ const Tab2: React.FC = () =>  {
 
   }, [mylist, mylist1]);
 
+/*
   const mkdirfunc = async () => {
     var options = {parents: true};
     var source = await ipfs.files.mkdir('/user1/contents', options)
         console.log(source)
   };
 
+*/
+  const newmkdirfunc = async () => {
+    var options = {parents: true};
+    if(dirtomake.length < 1) return; 
+    var source = await ipfs.files.mkdir(directory+"/"+dirtomake, options)
+        console.log(source)
+  };
 
 
 const saveToIpfsWithFilename = async (files) => {
@@ -133,19 +188,19 @@ const saveToIpfsWithFilename = async (files) => {
     }
 
       await Storage.set({ key: 'user', value: 'user1' });
-    var source = await ipfs.files.write('/user1/contents/'+file.name, file, options)
+    var source = await ipfs.files.write(directory +file.name, file, options)
         console.log(source)
-        source = ipfs.files.ls('/user1/contents/'+file.name, options);
+        source = ipfs.files.ls(directory +file.name, options);
          var file1 = await source.next();
 	  console.log( file1.value.cid.toString() )
         
-        setFilename('/user1/contents/'+ file.name);
+        setFilename(directory + file.name);
         setFilehash(file1.value.cid.toString());
         var x = {
 	  hash: file1.value.cid.toString(),
 	  name: file.name,
 	  cid: file1.value.cid.toString(),
-	  path: '/user1/contents/'
+	  path: directory
         };
         saveinserver(x);
   };
@@ -199,26 +254,12 @@ const saveToIpfsWithFilename = async (files) => {
             <IonItem >
             </IonItem >
 
-            <IonButton onClick={mkdirfunc}> Mkdir </IonButton>
     <IonList>
             <IonItem >
               <IonLabel color="primary">Nodetype = {ipfsconfig.nodetype} </IonLabel>
             </IonItem >
             <IonItem >
-              <IonLabel position="stacked" color="primary">Username</IonLabel>
-              <IonInput name="username" type="text" value={username} spellCheck={false} autocapitalize="off" onIonChange={e => setUsername(e.detail.value!)}
-                required>
-              </IonInput>
-            </IonItem>
-            <IonItem >
-              <IonInput name="listname" type="text" placeholder="List" value={listnamevalue} spellCheck={false} autocapitalize="off" >
-              </IonInput>
-            <IonButton onClick={()=>listfiles(directory)}> List </IonButton>
-            </IonItem>
-            <IonItem >
-              <IonInput name="liststat" type="text" placeholder="Stat" value={liststatvalue} spellCheck={false} autocapitalize="off" >
-              </IonInput>
-            <IonButton onClick={liststat}> Stat </IonButton>
+              <IonLabel color="primary">Userid = {ipfsconfig.userid} </IonLabel>
             </IonItem>
             <IonItem   >
           <IonLabel position="stacked" color="primary"   >  Click the directory below to browse  </IonLabel>
@@ -228,9 +269,9 @@ const saveToIpfsWithFilename = async (files) => {
           <IonText   onClick={()=>mynewdirectory('/user1/contents')} >  /contents </IonText>
             </IonItem>
             <IonItem >
-              <IonInput name="listname" type="text" placeholder="Directory to make" value={listnamevalue} spellCheck={false} autocapitalize="off" >
+              <IonInput name="listname" type="text" placeholder="Directory to make" value={dirtomake} spellCheck={false} autocapitalize="off" onIonChange={e => setDirtomake(e.detail.value!)} >
               </IonInput>
-            <IonButton onClick={mkdirfunc}> mkdir </IonButton>
+            <IonButton onClick={newmkdirfunc} slot="end"> mkdir </IonButton>
             </IonItem>
     <IonItem >
           <IonLabel position="stacked" color="primary"   >  Choose file to upload </IonLabel>
@@ -247,9 +288,12 @@ const saveToIpfsWithFilename = async (files) => {
         </div>
             </IonItem >
             <IonItem >
-            <IonButton onClick={mkdirfunc} size="small" > Upload </IonButton>
-            <IonButton onClick={listfiles} size="small" > List </IonButton>
-            <IonButton onClick={listfiles} size="small" > Pin </IonButton>
+            <IonButton onClick={()=>listfiles(directory)} size="small" > List </IonButton>
+            <IonButton onClick={()=>pinfiles(directory)} size="small" > Pin </IonButton>
+            </IonItem >
+            <IonItem >
+            <IonButton onClick={()=>liststat(directory)} size="small" > Stat </IonButton>
+          <IonLabel color="primary" slot="end"   > {statvalue}  bytes   </IonLabel>
             </IonItem >
 
        {
@@ -262,14 +306,14 @@ const saveToIpfsWithFilename = async (files) => {
       </IonText>
       <IonText color="secondary">
       <p>  
-           <a target="_blank" href={a['publicurl']} >Public view</a>
+           <a target="_blank" rel="noopener noreferrer" href={a['publicurl']} >Public view</a>
       </p>
       <p>
-           <a target="_blank" href={a['privateurl']} >Private view</a>
+           <a target="_blank" rel="noopener noreferrer" href={a['privateurl']} >Private view</a>
       </p>
       <p>
            <IonButton  size="small" color="primary" slot="end">Delete</IonButton>
-           <a  target="_blank"  href={a['privateurl']} download> Download </a>
+           <a  target="_blank"  rel="noopener noreferrer" href={a['privateurl']} download> Download </a>
       </p>
       </IonText>
     </IonLabel>
