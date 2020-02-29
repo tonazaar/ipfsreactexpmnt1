@@ -2,7 +2,9 @@ import { Plugins } from '@capacitor/core';
 
 
 import React, {  useEffect, useState }  from 'react';
-import { IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonIcon, IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+
+import { trash } from 'ionicons/icons';
 import ipfsClient from 'ipfs-http-client';
 
 
@@ -25,7 +27,7 @@ const Tab2: React.FC = () =>  {
 
   const mylist1: any[] = [];
 
-
+ const trashicon = trash;
   const serverurl = "http://157.245.63.46:8080";
 //  const serverurl = "http://157.245.63.46:1337";
 
@@ -70,7 +72,7 @@ const Tab2: React.FC = () =>  {
 
    var the_arr = dir.split('/');
     var lastdir = the_arr.pop();
-    if(lastdir == '')
+    if(lastdir === '')
     lastdir = the_arr.pop();
     var newdir =  the_arr.join('/') ;
 
@@ -126,7 +128,9 @@ const Tab2: React.FC = () =>  {
 
         var obj = {
          name: file.name,
+         type: file.type,
          cid: file.cid.toString(),
+         fullpath: dir+"/"+ file.name, 
          publicurl: publicurl,
          privateurl: privateurl,
         };
@@ -179,6 +183,14 @@ const Tab2: React.FC = () =>  {
     var source = await ipfs.files.mkdir(directory+"/"+dirtomake, options)
         console.log(source)
   };
+
+  const deletefile = async (cid) => {
+    var options = {};
+    var source = await ipfs.files.rm(cid, options)
+        console.log(source)
+    listfiles(directory);
+  };
+
 
 
 const saveToIpfsWithFilename = async (files) => {
@@ -300,6 +312,17 @@ const saveToIpfsWithFilename = async (files) => {
            mylist.map((a, index) =>      {
          return (
             <IonItem key={'somerandohmxxx'+index}>
+      { a['type'] ? (
+           <IonLabel class="ion-text-wrap">
+      <IonText color="danger">
+        <h3> {a['name']} </h3>
+      </IonText>
+      <IonText color="danger">
+           <a target="_blank" rel="noopener noreferrer" href={a['publicurl']} >Directory</a>
+      </IonText>
+    </IonLabel>
+
+      ) : (
            <IonLabel class="ion-text-wrap">
       <IonText color="primary">
         <h3> {a['name']} </h3>
@@ -312,11 +335,15 @@ const saveToIpfsWithFilename = async (files) => {
            <a target="_blank" rel="noopener noreferrer" href={a['privateurl']} >Private view</a>
       </p>
       <p>
-           <IonButton  size="small" color="primary" slot="end">Delete</IonButton>
            <a  target="_blank"  rel="noopener noreferrer" href={a['privateurl']} download> Download </a>
       </p>
       </IonText>
+     <IonButton onClick={()=>deletefile(a['fullpath'])} >
+      <IonIcon size="small" slot="icon-only" icon={trashicon} />
+    </IonButton>
+
     </IonLabel>
+      ) }
 
 
 
