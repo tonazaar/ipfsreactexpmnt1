@@ -2,7 +2,7 @@ import { Plugins } from '@capacitor/core';
 
 
 import React, {  useEffect, useState }  from 'react';
-import { IonIcon, IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonRow, IonCol, IonGrid, IonIcon, IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 
 import { trash } from 'ionicons/icons';
 import ipfsClient from 'ipfs-http-client';
@@ -13,7 +13,7 @@ import './Tab2.css';
 const { Storage } = Plugins;
 
 const Tab2: React.FC = () =>  {
-  const [username, setUsername] = useState('');
+  // const [username, setUsername] = useState('');
   const [dirtomake, setDirtomake] = useState('');
   const [filehash, setFilehash] = useState('');
   const [filename, setFilename] = useState('');
@@ -23,9 +23,11 @@ const Tab2: React.FC = () =>  {
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [error, setError] = useState('');
 
+  const [mysegments, setMysegments] = React.useState([]);
 
 
   const mylist1: any[] = [];
+  //var mysegments: any[] = [];
 
  const trashicon = trash;
   const serverurl = "http://157.245.63.46:8080";
@@ -54,10 +56,45 @@ const Tab2: React.FC = () =>  {
 
   };
 
+  const preparedispdir = async (dir) => {
+
+    var tmplocalsegment= dir.split('/');
+    var localsegment = [] as any;
+   
+    for(var j =0; j< tmplocalsegment.length; j++) {
+       if(tmplocalsegment[j] !== '')
+       localsegment.push(tmplocalsegment[j]);
+    }
+ 
+    var tmpsegments = [] as any;
+    console.log(JSON.stringify(localsegment));
+/*
+    if(lastdir === '')
+    lastdir = localsegment.pop();
+ */
+
+    for(var i = 0; i< localsegment.length; i++) {
+//      var newarray = localsegment.map((x)=> x);
+ 
+       var lastdir =  localsegment[localsegment.length-1];
+       var obj = {
+         lastpath: lastdir,
+         fullpath: localsegment.join('/') 
+       };
+
+      tmpsegments.push(obj); 
+      localsegment.pop();
+    }
+
+    setMysegments(tmpsegments);
+    console.log(JSON.stringify(tmpsegments));
+ 
+  };
 
   const mynewdirectory = async (newdir) => {
     //var newdir = '/user1';
     setDirectory(newdir); 
+    preparedispdir(newdir);
     listfiles(newdir);
   };
 
@@ -280,10 +317,21 @@ const saveToIpfsWithFilename = async (files) => {
           <IonText   onClick={()=>mynewdirectory('/user1')} >  /user1 </IonText>
           <IonText   onClick={()=>mynewdirectory('/user1/contents')} >  /contents </IonText>
             </IonItem>
+
+           {
+           mysegments.map((a, index) =>      {
+         return (
+            <IonText key={'somggsgserandohmxxx'+index}   onClick={()=>mynewdirectory(a['fullpath'])} > /{a['lastpath']}
+     
+            </IonText>
+           )
+
+           })
+          }
             <IonItem >
               <IonInput name="listname" type="text" placeholder="Directory to make" value={dirtomake} spellCheck={false} autocapitalize="off" onIonChange={e => setDirtomake(e.detail.value!)} >
               </IonInput>
-            <IonButton onClick={newmkdirfunc} slot="end"> mkdir </IonButton>
+            <IonButton shape="round" fill="outline" onClick={newmkdirfunc} slot="end"> mkdir </IonButton>
             </IonItem>
     <IonItem >
           <IonLabel position="stacked" color="primary"   >  Choose file to upload </IonLabel>
@@ -300,11 +348,11 @@ const saveToIpfsWithFilename = async (files) => {
         </div>
             </IonItem >
             <IonItem >
-            <IonButton onClick={()=>listfiles(directory)} size="small" > List </IonButton>
-            <IonButton onClick={()=>pinfiles(directory)} size="small" > Pin </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>listfiles(directory)} size="small" > List </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>pinfiles(directory)} size="small" > Pin </IonButton>
             </IonItem >
             <IonItem >
-            <IonButton onClick={()=>liststat(directory)} size="small" > Stat </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>liststat(directory)} size="small" > Stat </IonButton>
           <IonLabel color="primary" slot="end"   > {statvalue}  bytes   </IonLabel>
             </IonItem >
 
@@ -314,33 +362,50 @@ const saveToIpfsWithFilename = async (files) => {
             <IonItem key={'somerandohmxxx'+index}>
       { a['type'] ? (
            <IonLabel class="ion-text-wrap">
+      <IonGrid>
+  <IonRow>
+    <IonCol>
       <IonText color="danger">
         <h3> {a['name']} </h3>
       </IonText>
-      <IonText color="danger">
-           <a target="_blank" rel="noopener noreferrer" href={a['publicurl']} >Directory</a>
-      </IonText>
+    </IonCol>
+    <IonCol>
+     <IonButton shape="round" fill="outline"  onClick={()=>mynewdirectory(a['fullpath'])} >
+       Directory
+    </IonButton>
+    </IonCol>
+  </IonRow>
+      </IonGrid>
+
     </IonLabel>
 
       ) : (
            <IonLabel class="ion-text-wrap">
-      <IonText color="primary">
+      <IonGrid>
+  <IonRow>
+    <IonCol>
         <h3> {a['name']} </h3>
-      </IonText>
-      <IonText color="secondary">
-      <p>  
-           <a target="_blank" rel="noopener noreferrer" href={a['publicurl']} >Public view</a>
-      </p>
-      <p>
-           <a target="_blank" rel="noopener noreferrer" href={a['privateurl']} >Private view</a>
-      </p>
-      <p>
+    </IonCol>
+  </IonRow>
+  <IonRow>
+    <IonCol>
+           <a target="_blank" rel="noopener noreferrer" href={a['publicurl']} >Public </a>
+    </IonCol>
+    <IonCol>
+           <a target="_blank" rel="noopener noreferrer" href={a['privateurl']} >Private </a>
+    </IonCol>
+    <IonCol>
            <a  target="_blank"  rel="noopener noreferrer" href={a['privateurl']} download> Download </a>
-      </p>
-      </IonText>
-     <IonButton onClick={()=>deletefile(a['fullpath'])} >
+    </IonCol>
+    <IonCol>
+     <IonButton shape="round" fill="outline" onClick={()=>deletefile(a['fullpath'])} >
       <IonIcon size="small" slot="icon-only" icon={trashicon} />
     </IonButton>
+    </IonCol>
+  </IonRow>
+
+      </IonGrid>
+
 
     </IonLabel>
       ) }
