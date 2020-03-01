@@ -79,13 +79,14 @@ const Tab2: React.FC = () =>  {
        var lastdir =  localsegment[localsegment.length-1];
        var obj = {
          lastpath: lastdir,
-         fullpath: localsegment.join('/') 
+         fullpath: '/'+localsegment.join('/') 
        };
 
       tmpsegments.push(obj); 
       localsegment.pop();
     }
-
+    
+      tmpsegments.reverse(); 
     setMysegments(tmpsegments);
     console.log(JSON.stringify(tmpsegments));
  
@@ -237,13 +238,13 @@ const saveToIpfsWithFilename = async (files) => {
     }
 
       await Storage.set({ key: 'user', value: 'user1' });
-    var source = await ipfs.files.write(directory +file.name, file, options)
+    var source = await ipfs.files.write(directory +'/'+file.name, file, options)
         console.log(source)
         source = ipfs.files.ls(directory +file.name, options);
          var file1 = await source.next();
 	  console.log( file1.value.cid.toString() )
         
-        setFilename(directory + file.name);
+        setFilename(directory +'/'+ file.name);
         setFilehash(file1.value.cid.toString());
         var x = {
 	  hash: file1.value.cid.toString(),
@@ -300,41 +301,64 @@ const saveToIpfsWithFilename = async (files) => {
             <IonTitle size="large">File manager </IonTitle>
           </IonToolbar>
         </IonHeader>
-            <IonItem >
-            </IonItem >
 
     <IonList>
             <IonItem >
-              <IonLabel color="primary">Nodetype = {ipfsconfig.nodetype} </IonLabel>
+      <IonGrid>
+  <IonRow>
+    <IonCol>
+              <IonLabel color="primary">Nodetype : {ipfsconfig.nodetype} </IonLabel>
+    </IonCol>
+    <IonCol>
+              <IonLabel color="primary">Userid : {ipfsconfig.userid} </IonLabel>
+    </IonCol>
+  </IonRow>
+      </IonGrid>
             </IonItem >
             <IonItem >
-              <IonLabel color="primary">Userid = {ipfsconfig.userid} </IonLabel>
-            </IonItem>
-            <IonItem   >
-          <IonLabel position="stacked" color="primary"   >  Click the directory below to browse  </IonLabel>
-            </IonItem   >
-            <IonItem   >
-          <IonText   onClick={()=>mynewdirectory('/user1')} >  /user1 </IonText>
-          <IonText   onClick={()=>mynewdirectory('/user1/contents')} >  /contents </IonText>
-            </IonItem>
+      <IonGrid>
+  <IonRow>
+    <IonCol>
+    Current directory
+    </IonCol>
+    <IonCol>
+
+
+
+
 
            {
            mysegments.map((a, index) =>      {
          return (
-            <IonText key={'somggsgserandohmxxx'+index}   onClick={()=>mynewdirectory(a['fullpath'])} > /{a['lastpath']}
-     
-            </IonText>
+            <IonText key={'somggsgserandohmxxx'+index}   onClick={()=>mynewdirectory(a['fullpath'])} >/{a['lastpath']}</IonText>
            )
-
            })
           }
-            <IonItem >
-              <IonInput name="listname" type="text" placeholder="Directory to make" value={dirtomake} spellCheck={false} autocapitalize="off" onIonChange={e => setDirtomake(e.detail.value!)} >
-              </IonInput>
-            <IonButton shape="round" fill="outline" onClick={newmkdirfunc} slot="end"> mkdir </IonButton>
+    </IonCol>
+  </IonRow>
+      </IonGrid>
             </IonItem>
+            <IonItem >
+      <IonGrid>
+  <IonRow>
+    <IonCol>
+              <IonInput name="listname" type="text" placeholder="Enter directory to create" value={dirtomake} spellCheck={false} autocapitalize="off" onIonChange={e => setDirtomake(e.detail.value!)} >
+              </IonInput>
+    </IonCol>
+    <IonCol>
+            <IonButton shape="round" fill="outline" onClick={newmkdirfunc} > mkdir </IonButton>
+    </IonCol>
+  </IonRow>
+      </IonGrid>
+            </IonItem>
+            
     <IonItem >
-          <IonLabel position="stacked" color="primary"   >  Choose file to upload </IonLabel>
+      <IonGrid>
+  <IonRow>
+    <IonCol>
+          <IonLabel color="primary"   >  Choose file to upload </IonLabel>
+    </IonCol>
+    <IonCol>
     <div>
         <form id='captureMedia' onSubmit={handleSubmit}>
           <input type='file' onChange={captureFile} /><br/>
@@ -346,33 +370,56 @@ const saveToIpfsWithFilename = async (files) => {
             {filename}
           </a>
         </div>
+    </IonCol>
+  </IonRow>
+      </IonGrid>
             </IonItem >
             <IonItem >
+      <IonGrid>
+  <IonRow>
+    <IonCol>
             <IonButton shape="round" fill="outline" onClick={()=>listfiles(directory)} size="small" > List </IonButton>
+    </IonCol>
+    <IonCol>
             <IonButton shape="round" fill="outline" onClick={()=>pinfiles(directory)} size="small" > Pin </IonButton>
+    </IonCol>
+  </IonRow>
+      </IonGrid>
             </IonItem >
             <IonItem >
+      <IonGrid>
+  <IonRow>
+    <IonCol>
             <IonButton shape="round" fill="outline" onClick={()=>liststat(directory)} size="small" > Stat </IonButton>
-          <IonLabel color="primary" slot="end"   > {statvalue}  bytes   </IonLabel>
+    </IonCol>
+    <IonCol>
+          <IonLabel color="primary"   > {statvalue}  bytes   </IonLabel>
+    </IonCol>
+  </IonRow>
+      </IonGrid>
             </IonItem >
 
        {
            mylist.map((a, index) =>      {
          return (
-            <IonItem key={'somerandohmxxx'+index}>
+            <IonItem key={'somerandomghxx'+index}>
       { a['type'] ? (
            <IonLabel class="ion-text-wrap">
       <IonGrid>
   <IonRow>
     <IonCol>
       <IonText color="danger">
-        <h3> {a['name']} </h3>
+        <h3> /{a['name']} </h3>
       </IonText>
     </IonCol>
     <IonCol>
      <IonButton shape="round" fill="outline"  onClick={()=>mynewdirectory(a['fullpath'])} >
        Directory
     </IonButton>
+    </IonCol>
+    <IonCol>
+    </IonCol>
+    <IonCol>
     </IonCol>
   </IonRow>
       </IonGrid>
