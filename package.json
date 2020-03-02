@@ -2,6 +2,7 @@
   "name": "firstapp",
   "version": "0.0.1",
   "private": true,
+  "homepage": "http://tonazaar.github.io/ipfsreactexpmnt1",
   "dependencies": {
     "@capacitor/core": "^1.5.0",
     "@ionic/react": "^5.0.0",
@@ -29,6 +30,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+     "predeploy": "npm run build",
+     "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -47,5 +50,8 @@
       "last 1 safari version"
     ]
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "devDependencies": {
+    "gh-pages": "^2.2.0"
+  }
 }

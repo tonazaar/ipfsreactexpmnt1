@@ -2,7 +2,7 @@ import { Plugins } from '@capacitor/core';
 
 
 import React, {  useEffect, useState }  from 'react';
-import { IonRow, IonCol, IonGrid, IonIcon, IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { useIonViewWillEnter, useIonViewDidEnter, IonRow, IonCol, IonGrid, IonIcon, IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 
 import { trash } from 'ionicons/icons';
 import ipfsClient from 'ipfs-http-client';
@@ -27,7 +27,6 @@ const Tab2: React.FC = () =>  {
 
 
   const mylist1: any[] = [];
-  //var mysegments: any[] = [];
 
  const trashicon = trash;
   const serverurl = "http://157.245.63.46:8080";
@@ -42,7 +41,14 @@ const Tab2: React.FC = () =>  {
 	userid : 'user1'
   };
  
+ useIonViewDidEnter(() => {
+    console.log('ionViewDidEnter event fired')
+  });
 
+  useIonViewWillEnter(() => {
+    console.log('ionViewWillEnter event fired');
+    listNewDirectory('/user1/');
+  });
 
  const handleSubmit = (event) => {
     event.preventDefault()
@@ -52,54 +58,64 @@ const Tab2: React.FC = () =>  {
     event.stopPropagation()
     event.preventDefault()
 
-      saveToIpfsWithFilename(event.target.files)
+    saveToIpfsWithFilename(event.target.files)
 
   };
 
-  const preparedispdir = async (dir) => {
+  const prepareDisplayDirectory = async (dir) => {
 
     var tmplocalsegment= dir.split('/');
-    var localsegment = [] as any;
+    var cleanedlocalsegment = [] as any;
    
     for(var j =0; j< tmplocalsegment.length; j++) {
        if(tmplocalsegment[j] !== '')
-       localsegment.push(tmplocalsegment[j]);
+       cleanedlocalsegment.push(tmplocalsegment[j]);
     }
  
-    var tmpsegments = [] as any;
-    console.log(JSON.stringify(localsegment));
-/*
-    if(lastdir === '')
-    lastdir = localsegment.pop();
- */
+    var segmentstouse = [] as any;
+    console.log(JSON.stringify(cleanedlocalsegment));
 
-    for(var i = 0; i< localsegment.length; i++) {
-//      var newarray = localsegment.map((x)=> x);
+    var newarray = cleanedlocalsegment.map((x)=> x);
+    for(var i = 0; i< newarray.length; i++) {
  
-       var lastdir =  localsegment[localsegment.length-1];
+       var lastdir =  newarray[newarray.length-i-1];
        var obj = {
          lastpath: lastdir,
-         fullpath: '/'+localsegment.join('/') 
+         fullpath: '/'+cleanedlocalsegment.join('/') 
        };
 
-      tmpsegments.push(obj); 
-      localsegment.pop();
+      segmentstouse.push(obj); 
+      cleanedlocalsegment.pop();
     }
     
-      tmpsegments.reverse(); 
-    setMysegments(tmpsegments);
-    console.log(JSON.stringify(tmpsegments));
+    console.log(JSON.stringify(segmentstouse));
+    segmentstouse.reverse(); 
+    setMysegments(segmentstouse);
+    console.log(JSON.stringify(segmentstouse));
  
   };
 
-  const mynewdirectory = async (newdir) => {
-    //var newdir = '/user1';
-    setDirectory(newdir); 
-    preparedispdir(newdir);
-    listfiles(newdir);
+  const listNewDirectory = async (newdir) => {
+    preSaveDirectory(newdir); 
+    prepareDisplayDirectory(newdir);
+    listFiles(newdir);
   };
 
-  const pinfiles = async (dir) => {
+  const preSaveDirectory = async (dir) => {
+
+    var tmplocalsegment= dir.split('/');
+    var cleanedlocalsegment = [] as any;
+
+    for(var j =0; j< tmplocalsegment.length; j++) {
+       if(tmplocalsegment[j] !== '')
+       cleanedlocalsegment.push(tmplocalsegment[j]);
+    }
+   
+    var newdir = '/'+cleanedlocalsegment.join('/'); 
+    setDirectory(newdir); 
+  };
+
+  const pinFiles = async (dir) => {
     var options = {};
 
     var tmpss = localStorage.getItem("ipfsconfig");
@@ -112,7 +128,7 @@ const Tab2: React.FC = () =>  {
     var lastdir = the_arr.pop();
     if(lastdir === '')
     lastdir = the_arr.pop();
-    var newdir =  the_arr.join('/') ;
+   var newdir =  the_arr.join('/') ;
 
    console.log("newdir =" + newdir);
    console.log("lastdir =" + lastdir);
@@ -144,7 +160,7 @@ const Tab2: React.FC = () =>  {
 
   };
 
-  const listfiles = async (dir) => {
+  const listFiles = async (dir) => {
     var options = {};
 
     var tmpss = localStorage.getItem("ipfsconfig");
@@ -226,7 +242,7 @@ const Tab2: React.FC = () =>  {
     var options = {};
     var source = await ipfs.files.rm(cid, options)
         console.log(source)
-    listfiles(directory);
+    listFiles(directory);
   };
 
 
@@ -240,7 +256,7 @@ const saveToIpfsWithFilename = async (files) => {
       await Storage.set({ key: 'user', value: 'user1' });
     var source = await ipfs.files.write(directory +'/'+file.name, file, options)
         console.log(source)
-        source = ipfs.files.ls(directory +file.name, options);
+        source = ipfs.files.ls(directory +'/'+file.name, options);
          var file1 = await source.next();
 	  console.log( file1.value.cid.toString() )
         
@@ -253,6 +269,7 @@ const saveToIpfsWithFilename = async (files) => {
 	  path: directory
         };
         saveinserver(x);
+        listFiles(directory);
   };
 
   const saveinserver = async ( x ) => {
@@ -330,7 +347,7 @@ const saveToIpfsWithFilename = async (files) => {
            {
            mysegments.map((a, index) =>      {
          return (
-            <IonText key={'somggsgserandohmxxx'+index}   onClick={()=>mynewdirectory(a['fullpath'])} >/{a['lastpath']}</IonText>
+            <IonText key={'somggsgserandohmxxx'+index}   onClick={()=>listNewDirectory(a['fullpath'])} >/{a['lastpath']}</IonText>
            )
            })
           }
@@ -378,10 +395,10 @@ const saveToIpfsWithFilename = async (files) => {
       <IonGrid>
   <IonRow>
     <IonCol>
-            <IonButton shape="round" fill="outline" onClick={()=>listfiles(directory)} size="small" > List </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>listFiles(directory)} size="small" > List </IonButton>
     </IonCol>
     <IonCol>
-            <IonButton shape="round" fill="outline" onClick={()=>pinfiles(directory)} size="small" > Pin </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>pinFiles(directory)} size="small" > Pin </IonButton>
     </IonCol>
   </IonRow>
       </IonGrid>
@@ -413,7 +430,7 @@ const saveToIpfsWithFilename = async (files) => {
       </IonText>
     </IonCol>
     <IonCol>
-     <IonButton shape="round" fill="outline"  onClick={()=>mynewdirectory(a['fullpath'])} >
+     <IonButton shape="round" fill="outline"  onClick={()=>listNewDirectory(a['fullpath'])} >
        Directory
     </IonButton>
     </IonCol>
