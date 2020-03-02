@@ -14,10 +14,10 @@ const Tab3: React.FC = () =>  {
   const [nodetype, setNodetype] = useState('privatesharednode');
   const [password, setPassword] = useState('');
   const [loginmessage, setLoginmessage] = useState('Place for login message');
+  const [loginalert, setLoginalert] = useState('');
   const [nodemessage, setNodemessage] = useState('Place for node message');
   const [statvalue, setStatvalue] = useState(0);
   const [listvalue, setListvalue] = useState(0);
-  const [loginmessage, setLoginmessage] = useState('');
   const [showLoginAlert, setShowLoginAlert] = useState(false);
 
 
@@ -41,14 +41,14 @@ const Tab3: React.FC = () =>  {
 
     if(tmptoken == null)
     {
-      setLoginmessage("Login to proceed");
+      setLoginalert("Login to proceed");
       setShowLoginAlert(true);
       return;
     }
 
     if(tmpipfs == null)
     {
-      setLoginmessage("Config not created");
+      setLoginalert("Config not created");
       setShowLoginAlert(true);
       return;
     }
@@ -452,7 +452,7 @@ const saveToIpfsWithFilename = async (files) => {
           onDidDismiss={() => setShowLoginAlert(false)}
           header={'Instruction'}
           subHeader={'Login '}
-          message={loginmessage}
+          message={loginalert}
           buttons={['OK']}
         />
    

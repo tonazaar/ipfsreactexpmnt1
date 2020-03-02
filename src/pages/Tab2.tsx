@@ -13,7 +13,8 @@ import './Tab2.css';
 const { Storage } = Plugins;
 
 const Tab2: React.FC = () =>  {
-  // const [username, setUsername] = useState('');
+  const [userid, setUsername] = useState('');
+  const [nodetype, setNodetype] = useState('');
   const [dirtomake, setDirtomake] = useState('');
   const [filehash, setFilehash] = useState('');
   const [filename, setFilename] = useState('');
@@ -31,7 +32,6 @@ const Tab2: React.FC = () =>  {
   const mylist1: any[] = [];
 
  const trashicon = trash;
-  state = { redirect: null };
 
   const serverurl = "http://157.245.63.46:8080";
 //  const serverurl = "http://157.245.63.46:1337";
@@ -41,8 +41,8 @@ const Tab2: React.FC = () =>  {
 
 
   var ipfsconfig : any = {
-	nodetype : 'publicnode',
-	userid : 'user1'
+	nodetype : '',
+	userid : ''
   };
  
  useIonViewDidEnter(() => {
@@ -74,6 +74,7 @@ const Tab2: React.FC = () =>  {
     }
 
     setUsername(ipfsconfig.userid);
+    setNodetype(ipfsconfig.nodetype);
 
     listNewDirectory('/'+ ipfsconfig.userid);
   });
@@ -241,6 +242,8 @@ const Tab2: React.FC = () =>  {
 
 
   useEffect(() => {
+
+
 /*
     if(mylist1.length > 0) {
       for( var x in mylist1) {
@@ -249,7 +252,7 @@ const Tab2: React.FC = () =>  {
     };
 */
 
-  }, [mylist, mylist1]);
+  }, [directory]);
 
 /*
   const mkdirfunc = async () => {
@@ -359,7 +362,7 @@ const saveToIpfsWithFilename = async (files) => {
               <IonLabel color="primary">Nodetype  </IonLabel>
     </IonCol>
     <IonCol>
-              <IonLabel color="primary"> {ipfsconfig.nodetype} </IonLabel>
+              <IonLabel color="primary"> {nodetype} </IonLabel>
     </IonCol>
   </IonRow>
   <IonRow>
@@ -367,7 +370,7 @@ const saveToIpfsWithFilename = async (files) => {
               <IonLabel color="primary">Userid  </IonLabel>
     </IonCol>
     <IonCol>
-              <IonLabel color="primary"> {ipfsconfig.userid} </IonLabel>
+              <IonLabel color="primary"> {userid} </IonLabel>
     </IonCol>
   </IonRow>
       </IonGrid>
