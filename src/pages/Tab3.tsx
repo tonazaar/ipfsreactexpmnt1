@@ -1,7 +1,7 @@
 
 //import { Plugins } from '@capacitor/core';
 import React, { useState }  from 'react';
-import { IonListHeader, IonRadioGroup,IonRadio, IonRow, IonCol, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import {  useIonViewWillEnter, IonListHeader, IonRadioGroup,IonRadio, IonRow, IonCol, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import ipfsClient from 'ipfs-http-client';
 
 
@@ -17,6 +17,10 @@ const Tab3: React.FC = () =>  {
   const [nodemessage, setNodemessage] = useState('Place for node message');
   const [statvalue, setStatvalue] = useState(0);
   const [listvalue, setListvalue] = useState(0);
+  const [loginmessage, setLoginmessage] = useState('');
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
+
+
 
   //const [filehash, setFilehash] = useState('');
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -30,6 +34,27 @@ const Tab3: React.FC = () =>  {
 
  // const [orbitdb, setOrbit] = useState();
 
+  useIonViewWillEnter(() => {
+    console.log('ionViewWillEnter event fired');
+    var tmptoken = localStorage.getItem("token");
+    var tmpipfs = localStorage.getItem("ipfsconfig");
+
+    if(tmptoken == null)
+    {
+      setLoginmessage("Login to proceed");
+      setShowLoginAlert(true);
+      return;
+    }
+
+    if(tmpipfs == null)
+    {
+      setLoginmessage("Config not created");
+      setShowLoginAlert(true);
+      return;
+    }
+
+
+  })
 
   const mylogin = async () => {
   var url = serverurl + "/api/auth/login";
@@ -422,6 +447,14 @@ const saveToIpfsWithFilename = async (files) => {
           buttons={['OK']}
         />
 
+     <IonAlert
+          isOpen={showLoginAlert}
+          onDidDismiss={() => setShowLoginAlert(false)}
+          header={'Instruction'}
+          subHeader={'Login '}
+          message={loginmessage}
+          buttons={['OK']}
+        />
    
 
       </IonContent>

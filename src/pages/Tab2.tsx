@@ -21,7 +21,9 @@ const Tab2: React.FC = () =>  {
   const [statvalue, setStatvalue] = useState(0);
   const [mylist, setMylist] = React.useState([]);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [error, setError] = useState('');
+  const [loginmessage, setLoginmessage] = useState('');
 
   const [mysegments, setMysegments] = React.useState([]);
 
@@ -29,6 +31,8 @@ const Tab2: React.FC = () =>  {
   const mylist1: any[] = [];
 
  const trashicon = trash;
+  state = { redirect: null };
+
   const serverurl = "http://157.245.63.46:8080";
 //  const serverurl = "http://157.245.63.46:1337";
 
@@ -47,7 +51,31 @@ const Tab2: React.FC = () =>  {
 
   useIonViewWillEnter(() => {
     console.log('ionViewWillEnter event fired');
-    listNewDirectory('/user1/');
+    var tmptoken = localStorage.getItem("token");
+    var tmpipfs = localStorage.getItem("ipfsconfig");
+
+    if(tmptoken == null) 
+    {
+      setLoginmessage("Login to proceed");
+      setShowLoginAlert(true); 
+      return;
+    }
+
+    if(tmpipfs == null) 
+    {
+      setLoginmessage("Config not created");
+      setShowLoginAlert(true); 
+      return;
+    }
+
+    if(tmpipfs != null) {
+    ipfsconfig = JSON.parse(tmpipfs);
+    console.log(ipfsconfig);
+    }
+
+    setUsername(ipfsconfig.userid);
+
+    listNewDirectory('/'+ ipfsconfig.userid);
   });
 
  const handleSubmit = (event) => {
@@ -530,6 +558,16 @@ const saveToIpfsWithFilename = async (files) => {
           message={error}
           buttons={['OK']}
         />
+
+  <IonAlert
+          isOpen={showLoginAlert}
+          onDidDismiss={() => setShowLoginAlert(false)}
+          header={'Instruction'}
+          subHeader={'Login '}
+          message={loginmessage}
+          buttons={['OK']}
+        />
+
 
    
 
