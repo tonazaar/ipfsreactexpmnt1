@@ -2,7 +2,7 @@ import { Plugins } from '@capacitor/core';
 
 
 import React, {  useEffect, useState }  from 'react';
-import { useIonViewWillEnter, useIonViewDidEnter, IonRow, IonCol, IonGrid, IonIcon, IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonBadge, IonCardHeader, IonCard, useIonViewWillEnter, useIonViewDidEnter, IonRow, IonCol, IonGrid, IonIcon, IonText, IonAlert, IonButton, IonList,IonInput, IonLabel,IonItem,  IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 
 import { trash } from 'ionicons/icons';
 import ipfsClient from 'ipfs-http-client';
@@ -320,18 +320,31 @@ const saveToIpfsWithFilename = async (files) => {
         </IonHeader>
 
     <IonList>
+            <IonCard >
+     <IonCardHeader>
+    IPFS storage system 
+     </IonCardHeader>
             <IonItem >
       <IonGrid>
   <IonRow>
     <IonCol>
-              <IonLabel color="primary">Nodetype : {ipfsconfig.nodetype} </IonLabel>
+              <IonLabel color="primary">Nodetype  </IonLabel>
     </IonCol>
     <IonCol>
-              <IonLabel color="primary">Userid : {ipfsconfig.userid} </IonLabel>
+              <IonLabel color="primary"> {ipfsconfig.nodetype} </IonLabel>
+    </IonCol>
+  </IonRow>
+  <IonRow>
+    <IonCol>
+              <IonLabel color="primary">Userid  </IonLabel>
+    </IonCol>
+    <IonCol>
+              <IonLabel color="primary"> {ipfsconfig.userid} </IonLabel>
     </IonCol>
   </IonRow>
       </IonGrid>
             </IonItem >
+
             <IonItem >
       <IonGrid>
   <IonRow>
@@ -355,11 +368,19 @@ const saveToIpfsWithFilename = async (files) => {
   </IonRow>
       </IonGrid>
             </IonItem>
+            </IonCard >
+
+   <IonCard >
+     <IonCardHeader>
+    File processing
+     </IonCardHeader>
+
             <IonItem >
+ <IonBadge slot="start">1</IonBadge>
       <IonGrid>
   <IonRow>
     <IonCol>
-              <IonInput name="listname" type="text" placeholder="Enter directory to create" value={dirtomake} spellCheck={false} autocapitalize="off" onIonChange={e => setDirtomake(e.detail.value!)} >
+              <IonInput name="listname" type="text" placeholder="Create directory " value={dirtomake} spellCheck={false} autocapitalize="off" onIonChange={e => setDirtomake(e.detail.value!)} >
               </IonInput>
     </IonCol>
     <IonCol>
@@ -370,6 +391,7 @@ const saveToIpfsWithFilename = async (files) => {
             </IonItem>
             
     <IonItem >
+ <IonBadge slot="start">2</IonBadge>
       <IonGrid>
   <IonRow>
     <IonCol>
@@ -391,14 +413,22 @@ const saveToIpfsWithFilename = async (files) => {
   </IonRow>
       </IonGrid>
             </IonItem >
+   </IonCard >
+
+   <IonCard >
+     <IonCardHeader>
+    File queries
+     </IonCardHeader>
+
+
             <IonItem >
       <IonGrid>
   <IonRow>
     <IonCol>
-            <IonButton shape="round" fill="outline" onClick={()=>listFiles(directory)} size="small" > List </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>listFiles(directory)} size="small" > List files </IonButton>
     </IonCol>
     <IonCol>
-            <IonButton shape="round" fill="outline" onClick={()=>pinFiles(directory)} size="small" > Pin </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>pinFiles(directory)} size="small" > Pin directory </IonButton>
     </IonCol>
   </IonRow>
       </IonGrid>
@@ -407,7 +437,7 @@ const saveToIpfsWithFilename = async (files) => {
       <IonGrid>
   <IonRow>
     <IonCol>
-            <IonButton shape="round" fill="outline" onClick={()=>liststat(directory)} size="small" > Stat </IonButton>
+            <IonButton shape="round" fill="outline" onClick={()=>liststat(directory)} size="small" > Usage </IonButton>
     </IonCol>
     <IonCol>
           <IonLabel color="primary"   > {statvalue}  bytes   </IonLabel>
@@ -415,6 +445,11 @@ const saveToIpfsWithFilename = async (files) => {
   </IonRow>
       </IonGrid>
             </IonItem >
+   </IonCard >
+   <IonCard >
+     <IonCardHeader>
+    File listing
+     </IonCardHeader>
 
        {
            mylist.map((a, index) =>      {
@@ -430,11 +465,11 @@ const saveToIpfsWithFilename = async (files) => {
       </IonText>
     </IonCol>
     <IonCol>
-     <IonButton shape="round" fill="outline"  onClick={()=>listNewDirectory(a['fullpath'])} >
-       Directory
-    </IonButton>
     </IonCol>
     <IonCol>
+     <IonButton size="small" shape="round" fill="outline"  onClick={()=>listNewDirectory(a['fullpath'])} >
+       Directory
+    </IonButton>
     </IonCol>
     <IonCol>
     </IonCol>
@@ -481,6 +516,7 @@ const saveToIpfsWithFilename = async (files) => {
           })
        }  
 
+   </IonCard >
 
 
 
