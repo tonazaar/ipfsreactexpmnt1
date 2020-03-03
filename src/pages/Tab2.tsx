@@ -15,6 +15,7 @@ const { Storage } = Plugins;
 const Tab2: React.FC = () =>  {
   const [userid, setUserid] = useState('');
   const [nodetype, setNodetype] = useState('');
+  const [localgateway, setLocalgateway] = useState('');
   const [dirtomake, setDirtomake] = useState('');
   const [filehash, setFilehash] = useState('');
   const [filename, setFilename] = useState('');
@@ -100,6 +101,7 @@ const Tab2: React.FC = () =>  {
 
     setUserid(ipfsconfig.userid);
     setNodetype(ipfsconfig.nodetype);
+    setLocalgateway(ipfsconfig.localgateway);
     checkandcreatedir('/'+ ipfsconfig.userid);
 
     listNewDirectory('/'+ ipfsconfig.userid);
@@ -289,7 +291,7 @@ const Tab2: React.FC = () =>  {
         //mylist1.push( {key:('hh'+ p++), value:file}); 
 
         var publicurl = 'https://ipfs.io/ipfs/'+file.cid.toString()
-        var privateurl = ipfsconfig.localgateway + '/ipfs/'+file.cid.toString()
+        var privateurl = localgateway + '/ipfs/'+file.cid.toString()
 
         var obj = {
          name: file.name,
