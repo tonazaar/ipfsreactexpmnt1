@@ -1,14 +1,14 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "10c9e00e213c57b71a69195e88a7e9d8",
+    "revision": "161a35d4006717c00e696a5f9cc0ac76",
     "url": "/ipfsreactexpmnt1/index.html"
   },
   {
-    "revision": "eb34bf0b837cb3581ae8",
+    "revision": "27a81f7860d048d9b84a",
     "url": "/ipfsreactexpmnt1/static/css/9.97876eb3.chunk.css"
   },
   {
-    "revision": "4924dfca2b97b2c449c8",
+    "revision": "3b809bebcded349c5ff9",
     "url": "/ipfsreactexpmnt1/static/css/main.6f2e0ccf.chunk.css"
   },
   {
@@ -364,12 +364,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/ipfsreactexpmnt1/static/js/89.01dbf228.chunk.js"
   },
   {
-    "revision": "eb34bf0b837cb3581ae8",
-    "url": "/ipfsreactexpmnt1/static/js/9.3b6727b0.chunk.js"
+    "revision": "27a81f7860d048d9b84a",
+    "url": "/ipfsreactexpmnt1/static/js/9.ab1268ba.chunk.js"
   },
   {
     "revision": "cd756d4d9dfa81ce788c0dc415ccd170",
-    "url": "/ipfsreactexpmnt1/static/js/9.3b6727b0.chunk.js.LICENSE"
+    "url": "/ipfsreactexpmnt1/static/js/9.ab1268ba.chunk.js.LICENSE"
   },
   {
     "revision": "7a6f98316df67acf81e7",
@@ -420,8 +420,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/ipfsreactexpmnt1/static/js/97.a7f52b6d.chunk.js.LICENSE"
   },
   {
-    "revision": "4924dfca2b97b2c449c8",
-    "url": "/ipfsreactexpmnt1/static/js/main.ac8dc54f.chunk.js"
+    "revision": "3b809bebcded349c5ff9",
+    "url": "/ipfsreactexpmnt1/static/js/main.cee5394a.chunk.js"
   },
   {
     "revision": "6b48f9126d2cfb2aca64",
