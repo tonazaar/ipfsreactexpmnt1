@@ -29,7 +29,7 @@ const Tab2: React.FC = () =>  {
   const [mysegments, setMysegments] = React.useState([]);
 
 
-  const mylist1: any[] = [];
+  //const mylist1: any[] = [];
 
  const trashicon = trash;
 

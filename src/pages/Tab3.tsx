@@ -37,7 +37,14 @@ const Tab3: React.FC = () =>  {
   useIonViewWillEnter(() => {
     console.log('ionViewWillEnter event fired');
     var tmptoken = localStorage.getItem("token");
-    var tmpipfs = localStorage.getItem("ipfsconfig");
+    var userinfo = localStorage.getItem('userinfo') as any;
+
+    if(userinfo != null )
+    {
+	setUsername(userinfo.username);
+	setEmail(userinfo.email);
+    }
+
 
     if(tmptoken == null)
     {
@@ -46,15 +53,21 @@ const Tab3: React.FC = () =>  {
       return;
     }
 
+    logintest();
+
+    getconfig();
+
+    var tmpipfs = localStorage.getItem("ipfsconfig");
+
     if(tmpipfs == null)
-    {
+     {
       setLoginalert("Config not created");
       setShowLoginAlert(true);
       return;
-    }
+     }
 
+   });
 
-  })
 
   const mylogin = async () => {
   var url = serverurl + "/api/auth/login";
@@ -76,6 +89,7 @@ const Tab3: React.FC = () =>  {
         (res) => {
          console.log(res);
          localStorage.setItem('token', res.token);
+         localStorage.setItem('userinfo', res.user);
          setLoginmessage(JSON.stringify(res));
         },      
         (err) => {
@@ -101,12 +115,15 @@ const Tab3: React.FC = () =>  {
       .then(
         (res) => {
          console.log(res);
+         localStorage.setItem('userinfo', res.user);
          setLoginmessage(JSON.stringify(res));
+         return 0;
         },      
         (err) => {
          setError(err);
          setShowErrorAlert(true);
           console.log(err)
+         return -1;
         }
       )
   } 
