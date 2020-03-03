@@ -13,7 +13,7 @@ import './Tab2.css';
 const { Storage } = Plugins;
 
 const Tab2: React.FC = () =>  {
-  const [userid, setUsername] = useState('');
+  const [userid, setUserid] = useState('');
   const [nodetype, setNodetype] = useState('');
   const [dirtomake, setDirtomake] = useState('');
   const [filehash, setFilehash] = useState('');
@@ -73,7 +73,7 @@ const Tab2: React.FC = () =>  {
     console.log(ipfsconfig);
     }
 
-    setUsername(ipfsconfig.userid);
+    setUserid(ipfsconfig.userid);
     setNodetype(ipfsconfig.nodetype);
 
     listNewDirectory('/'+ ipfsconfig.userid);

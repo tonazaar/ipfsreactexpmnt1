@@ -11,6 +11,7 @@ import './Tab3.css';
 const Tab3: React.FC = () =>  {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const [userid, setUserid] = useState('');
   const [nodetype, setNodetype] = useState('privatesharednode');
   const [password, setPassword] = useState('');
   const [loginmessage, setLoginmessage] = useState('Place for login message');
@@ -37,11 +38,21 @@ const Tab3: React.FC = () =>  {
   useIonViewWillEnter(() => {
     console.log('ionViewWillEnter event fired');
     var tmptoken = localStorage.getItem("token");
-    var userinfo = localStorage.getItem('userinfo') as any;
+    var tuserinfo = localStorage.getItem('userinfo') as any;
+    var userinfo = null as any;
+
+    console.log("userinfo="+ tuserinfo);
+    try {
+      userinfo = JSON.parse(tuserinfo); 
+    } catch(err)   {
+     return;
+    };
 
     if(userinfo != null )
     {
+        console.log(tuserinfo);
 	setUsername(userinfo.username);
+	setUserid(userinfo.userid);
 	setEmail(userinfo.email);
     }
 
@@ -89,7 +100,7 @@ const Tab3: React.FC = () =>  {
         (res) => {
          console.log(res);
          localStorage.setItem('token', res.token);
-         localStorage.setItem('userinfo', res.user);
+         localStorage.setItem('userinfo', JSON.stringify(res.user));
          setLoginmessage(JSON.stringify(res));
         },      
         (err) => {
@@ -115,7 +126,6 @@ const Tab3: React.FC = () =>  {
       .then(
         (res) => {
          console.log(res);
-         localStorage.setItem('userinfo', res.user);
          setLoginmessage(JSON.stringify(res));
          return 0;
         },      
@@ -160,7 +170,7 @@ const Tab3: React.FC = () =>  {
   const stopnode = async () => {
   var url = serverurl + "/api/ipfsnode/stopnode";
    var cred = {
-	userid: username,
+	userid: userid,
    };
   fetch(url, {
             method: 'POST',
@@ -188,7 +198,7 @@ const Tab3: React.FC = () =>  {
   const startnode = async () => {
   var url = serverurl + "/api/ipfsnode/startnode";
    var cred = {
-	userid: username
+	userid: userid
    };
   fetch(url, {
             method: 'POST',
@@ -250,7 +260,7 @@ const Tab3: React.FC = () =>  {
   const getconfig = async () => {
   var url = serverurl + "/api/ipfsnode/getipfsconfig";
    var cred = {
-	userid: username,
+	userid: userid,
 	nodetype: nodetype
    };
   fetch(url, {
