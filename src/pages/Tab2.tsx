@@ -22,8 +22,10 @@ const Tab2: React.FC = () =>  {
   const [statvalue, setStatvalue] = useState(0);
   const [mylist, setMylist] = React.useState([]);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showMessageAlert, setShowMessageAlert] = useState(false);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loginmessage, setLoginmessage] = useState('');
 
   const [mysegments, setMysegments] = React.useState([]);
@@ -51,8 +53,10 @@ const Tab2: React.FC = () =>  {
 
   useIonViewWillEnter(() => {
     console.log('ionViewWillEnter event fired');
+
     var tmptoken = localStorage.getItem("token");
-    var tmpipfs = localStorage.getItem("ipfsconfig");
+    var tuserinfo = localStorage.getItem('userinfo') as any;
+    var userinfo = null as any;
 
     if(tmptoken == null) 
     {
@@ -61,23 +65,75 @@ const Tab2: React.FC = () =>  {
       return;
     }
 
-    if(tmpipfs == null) 
+    console.log("userinfo="+ tuserinfo);
+    try {
+      userinfo = JSON.parse(tuserinfo);
+    } catch(err)   {
+     return;
+    };
+
+    if(userinfo != null )
     {
-      setLoginmessage("Config not created");
-      setShowLoginAlert(true); 
-      return;
+        console.log(tuserinfo);
+//        setUsername(userinfo.username);
+        setUserid(userinfo.userid);
+//        setEmail(userinfo.email);
     }
+
+    getconfig();
+
+
+    var tmpipfs = localStorage.getItem("ipfsconfig");
+
+
 
     if(tmpipfs != null) {
     ipfsconfig = JSON.parse(tmpipfs);
     console.log(ipfsconfig);
+
+    }else {
+      setLoginmessage("Config not created");
+      setShowLoginAlert(true); 
+      return;
+
     }
 
     setUserid(ipfsconfig.userid);
     setNodetype(ipfsconfig.nodetype);
+    checkandcreatedir('/'+ ipfsconfig.userid);
 
     listNewDirectory('/'+ ipfsconfig.userid);
   });
+
+  const getconfig = async () => {
+  var url = serverurl + "/api/ipfsnode/getipfsconfig";
+   var cred = {
+        userid: userid,
+        nodetype: nodetype
+   };
+  fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "" + localStorage.getItem("token"),
+            },
+            body: JSON.stringify(cred)
+     })
+      .then(res => res.json())
+      .then(
+        (res) => {
+         console.log(res);
+         localStorage.setItem("ipfsconfig", JSON.stringify(res) );
+        },
+        (err) => {
+         setError(err);
+         setShowErrorAlert(true);
+          console.log(err)
+        }
+      )
+  }
+
+
 
  const handleSubmit = (event) => {
     event.preventDefault()
@@ -146,13 +202,13 @@ const Tab2: React.FC = () =>  {
 
   const pinFiles = async (dir) => {
     var options = {};
-
+/*
     var tmpss = localStorage.getItem("ipfsconfig");
     if(tmpss != null) {
     ipfsconfig = JSON.parse(tmpss);
     console.log(ipfsconfig);
     }
-
+*/
    var the_arr = dir.split('/');
     var lastdir = the_arr.pop();
     if(lastdir === '')
@@ -162,14 +218,14 @@ const Tab2: React.FC = () =>  {
    console.log("newdir =" + newdir);
    console.log("lastdir =" + lastdir);
 
+   if(newdir === '') {
+     newdir = '/';
+   }
+
    var source = ipfs.files.ls(newdir , options)
     try {
       for await (const file of source) {
         console.log(file)
-       /* var segments = dir.replace(/\/+$/, '').split('/');
-       var lastDir = (segments.length > 0) ? segments[segments.length - 1] : "";
-        console.log(lastDir);
-*/
 
         if(file.type === 1 && file.name === lastdir) {
 
@@ -180,6 +236,8 @@ const Tab2: React.FC = () =>  {
           console.log("pinning status =" + JSON.stringify(pinoutput));
         }
       }
+      setMessage('Pinned '+ dir);
+      setShowMessageAlert(true); 
     } catch (err) {
       setError(err);
       setShowErrorAlert(true);
@@ -189,15 +247,39 @@ const Tab2: React.FC = () =>  {
 
   };
 
+  const checkandcreatedir = async (dir) => {
+
+    var options = {};
+    var source = ipfs.files.ls(dir, options)
+    try {
+      for await (const file of source) {
+        console.log(file)
+        //mylist1.push( {key:('hh'+ p++), value:file}); 
+       }
+     } catch (err) {
+      setError(err);
+      console.error(err)
+
+      var options1 = {parents: true};
+        source = await ipfs.files.mkdir(dir , options1)
+      console.log(source);
+    }
+
+
+
+  };
+
   const listFiles = async (dir) => {
     var options = {};
 
+/*
     var tmpss = localStorage.getItem("ipfsconfig");
     if(tmpss != null) {
     ipfsconfig = JSON.parse(tmpss);
     console.log(ipfsconfig);
     }
 
+*/
 
  var source = ipfs.files.ls(dir, options)
     var testarray = [] as any;
@@ -267,6 +349,7 @@ const Tab2: React.FC = () =>  {
     if(dirtomake.length < 1) return; 
     var source = await ipfs.files.mkdir(directory+"/"+dirtomake, options)
         console.log(source)
+    listFiles(directory);
   };
 
   const deletefile = async (cid) => {
@@ -568,6 +651,14 @@ const saveToIpfsWithFilename = async (files) => {
           header={'Instruction'}
           subHeader={'Login '}
           message={loginmessage}
+          buttons={['OK']}
+        />
+
+    <IonAlert
+          isOpen={showMessageAlert}
+          onDidDismiss={() => setShowMessageAlert(false)}
+          header={'Message'}
+          message={message}
           buttons={['OK']}
         />
 
